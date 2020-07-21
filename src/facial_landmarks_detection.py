@@ -11,15 +11,13 @@ class Model_FacialLandmarksDetection:
         self.model_name = model_name
         self.device = device
         self.extensions = extensions
-        self.model_structure = self.model_name
-        self.model_weights = self.model_name.split('.')[0]+'.bin'
         self.plugin = None
         self.network = None
         self.exec_net = None
-        self.input_name = None
-        self.input_shape = None
-        self.output_names = None
-        self.output_shape = None
+        self.in_name = None
+        self.in_shape = None
+        self.out_name = None
+        self.out_shape = None
 
     def load_model(self):
   
@@ -37,54 +35,57 @@ class Model_FacialLandmarksDetection:
 
         self.exec_net = self.plugin.load_network(network=self.network, device_name=self.device,num_requests=1)
         
-        self.input_name = next(iter(self.network.inputs))
-        self.input_shape = self.network.inputs[self.input_name].shape
-        self.output_names = next(iter(self.network.outputs))
-        self.output_shape = self.network.outputs[self.output_names].shape
+        self.in_name = next(iter(self.network.inputs))
+        self.in_shape = self.network.inputs[self.in_name].shape
+        self.out_name = next(iter(self.network.outputs))
+        self.out_shape = self.network.outputs[self.out_name].shape
 
     def predict(self, image):
     
-        img_processed = self.preprocess_input(image.copy())
-        outputs = self.exec_net.infer({self.input_name:img_processed})
-        coords = self.preprocess_output(outputs)
-        h=image.shape[0]
-        w=image.shape[1]
-        coords = coords* np.array([w, h, w, h])
-        coords = coords.astype(np.int32) 
-        le_xmin=coords[0]-10
-        le_ymin=coords[1]-10
-        le_xmax=coords[0]+10
-        le_ymax=coords[1]+10
-        
-        re_xmin=coords[2]-10
-        re_ymin=coords[3]-10
-        re_xmax=coords[2]+10
-        re_ymax=coords[3]+10
+        processed_image = self.preprocess_input(image.copy())
+        outputs = self.exec_net.infer({self.in_name:processed_image})
+        coord = self.preprocess_output(outputs)
+        height=image.shape[0]
+        width=image.shape[1]
 
-        left_eye =  image[le_ymin:le_ymax, le_xmin:le_xmax]
-        right_eye = image[re_ymin:re_ymax, re_xmin:re_xmax]
-        eye_coords = [[le_xmin,le_ymin,le_xmax,le_ymax], [re_xmin,re_ymin,re_xmax,re_ymax]]
-        return left_eye, right_eye, eye_coords
+        coord = coord* np.array([width, height, width, height])
+        coord = coord.astype(np.int32) 
+
+        left_xmin=coord[0]-10
+        left_ymin=coord[1]-10
+        left_xmax=coord[0]+10
+        left_ymax=coord[1]+10
+        
+        right_xmin=coord[2]-10
+        right_ymin=coord[3]-10
+        right_xmax=coord[2]+10
+        right_ymax=coord[3]+10
+
+        left_eye =  image[left_ymin:left_ymax, left_xmin:left_xmax]
+        right_eye = image[right_ymin:right_ymax, right_xmin:right_xmax]
+        eye_coord = [[left_xmin,left_ymin,left_xmax,left_ymax], [right_xmin,right_ymin,right_xmax,right_ymax]]
+        return left_eye, right_eye, eye_coord
 
     def check_model(self):  
 
         if self.device == "CPU":     
             supported_layers = self.plugin.query_network(network=self.network, device_name=self.device)  
-            unsupported_layers = [l for l in self.network.layers.keys() if l not in supported_layers]
-            if len(unsupported_layers) != 0:
-                logging.error("[ERROR] Unsupported layers found: {}".format(unsupported_layers))
+            notsupported_layers = [l for l in self.network.layers.keys() if l not in supported_layers]
+
+            if len(notsupported_layers) != 0:
+                logging.error("[ERROR] Unsupported layers found: {}".format(notsupported_layers))
                 sys.exit(1)
 
     def preprocess_input(self, image):
 
-        image_processed = cv2.resize(image,(self.input_shape[3], self.input_shape[2]))
+        image_processed = cv2.resize(image,(self.in_shape[3], self.in_shape[2]))
         image_processed = image_processed.transpose(2, 0, 1)
         image_processed = image_processed.reshape(1, *image_processed.shape)
         return image_processed
 
     def preprocess_output(self, outputs):
 
-        outs = outputs[self.output_names][0]
+        outs = outputs[self.out_name][0]
         leye_x = outs[0].tolist()[0][0]
         leye_y = outs[1].tolist()[0][0]
         reye_x = outs[2].tolist()[0][0]
