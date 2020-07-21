@@ -3,6 +3,15 @@
 Computer Pointer Controller software is used for controlling mouse pointer motion by eye direction and also estimated head pose. This application takes video or camera stream as input and then the app predicts eye direction and head position, and moves the mouse pointers based on that estimate.
 
 ## Project Set Up and Installation
+### Prerequisites
+  - You need to install openvino successfully. <br/>
+  See this [documentation](https://docs.openvinotoolkit.org/latest/index.html) for installing openvino.
+
+#### 1. Clone the repository:- 
+
+```
+git clone https://github.com/alaagamal98/computer-pointer-controller
+```
 
 #### 1. Source Environment
 
