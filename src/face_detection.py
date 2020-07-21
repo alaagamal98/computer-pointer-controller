@@ -29,7 +29,7 @@ class Model_FaceDetection:
         if self.extensions and 'CPU' in self.device:
             self.plugin.add_extension(self.extensions,self.device)
 
-        self.network = IENetwork(model=model_structure, widtheights=model_weights)
+        self.network = IENetwork(model=model_structure, weights=model_weights)
 
         self.check_model()
 
@@ -39,7 +39,7 @@ class Model_FaceDetection:
         self.in_shape = self.network.inputs[self.in_name].shape
 
         self.out_name = next(iter(self.network.outputs))
-        self.out_shape = self.network.outputs[self.out_name].in_shape
+        self.out_shape = self.network.outputs[self.out_name].shape
 
     def predict(self, image, prob_threshold):
     
@@ -66,7 +66,7 @@ class Model_FaceDetection:
         if self.device == "CPU":     
             supported_layers = self.plugin.query_network(network=self.network, device_name=self.device)  
             notsupported_layers = [l for l in self.network.layers.keys() if l not in supported_layers]
-            
+
             if len(notsupported_layers) != 0:
                 logging.error("[ERROR] Unsupported layers found: {}".format(notsupported_layers))
                 sys.exit(1)

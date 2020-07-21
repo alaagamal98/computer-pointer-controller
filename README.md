@@ -18,7 +18,10 @@ git clone https://github.com/alaagamal98/computer-pointer-controller
 Run the following command on a new terminal window.
 
 ```
-cd <openvino directory>\bin\setupvars.bat
+cd <openvino directory>\bin
+```
+```
+setupvars.bat
 ```
 
 #### 2. Download the models
@@ -59,12 +62,11 @@ pip install -r requirements.txt
 #### 4. Run the Application
 
 ```
-python src/main.py -fd <openvino directory>/deployment_tools/open_model_zoo/tools/downloader/intel/face-detection-adas-binary-0001/FP32-INT1/face-detection-adas-binary-0001 -hp <openvino directory>/deployment_tools/open_model_zoo/tools/downloader/intel/head-pose-estimation-adas-0001/FP32/head-pose-estimation-adas-0001 -fl <openvino directory>/deployment_tools/open_model_zoo/tools/downloader/intel/landmarks-regression-retail-0009/FP32/landmarks-regression-retail-0009 -ge <openvino directory>/deployment_tools/open_model_zoo/tools/downloader/intel/gaze-estimation-adas-0002/FP32/gaze-estimation-adas-0002 -d CPU -i bin/demo.mp4 
+python src/main.py -fd <openvino directory>/deployment_tools/open_model_zoo/tools/downloader/intel/face-detection-adas-binary-0001/FP32-INT1/face-detection-adas-binary-0001 -hp <openvino directory>/deployment_tools/open_model_zoo/tools/downloader/intel/head-pose-estimation-adas-0001/FP16/head-pose-estimation-adas-0001 -fl <openvino directory>/deployment_tools/open_model_zoo/tools/downloader/intel/landmarks-regression-retail-0009/FP16/landmarks-regression-retail-0009 -ge <openvino directory>/deployment_tools/open_model_zoo/tools/downloader/intel/gaze-estimation-adas-0002/FP16/gaze-estimation-adas-0002 -d CPU -i bin/demo.mp4 
 ```
-
 ## Demo
 
-*TODO:* Explain how to run a basic demo of your model.
+[Demo Video](https://youtu.be/R6MyJ1eKRz8)
 
 ## Documentation
 
@@ -76,9 +78,9 @@ Argument|Type|Description
 -fl | Required | Path to .xml file of Facial Landmark Detection model.
 -hp| Required | Path to .xml file of Head Pose Estimation model.
 -ge| Required | Path to .xml file of Gaze Estimation model.
--i| Required | Path to video file or enter cam for webcam
+-i| Required | Path to video file or enter cam for webcam.
+-o| Required | Path to video output file.
 -probs  | Optional | Specify confidence threshold which the value here in range(0, 1), default=0.6
--flags | Optional | ff for faceDetectionModel, fl for landmarkRegressionModel, fh for headPoseEstimationModel, fg for gazeEstimationMode
 -d | Optional | Provide the target device: CPU / GPU / VPU / FPGA
 
 ## Benchmarks
